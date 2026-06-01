@@ -1,0 +1,12 @@
+# GPS航点导航服务
+# 用于发送多个GPS航点进行依次导航
+
+# 请求：航点列表和导航参数
+GPSWaypoint[] waypoints  # GPS航点列表
+bool loop                # 是否循环执行
+float64 wait_at_waypoint # 每个航点到达后等待时间(秒)
+---
+# 响应：服务执行结果
+bool success             # 是否成功接收
+string message           # 状态消息
+int32 total_waypoints    # 航点总数

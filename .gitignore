@@ -1,0 +1,48 @@
+# ROS2 工作空间构建产物
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# 根目录构建产物（防止在错误目录运行colcon）
+build/
+install/
+log/
+
+# 第三方SDK备份（完全忽略）
+sdk/
+
+# Python 临时文件
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# 虚拟环境
+venv/
+env/
+ENV/
+
+# IDE 和编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 日志文件
+*.log
+
+# 编译产物
+*.o
+*.a
+*.dylib
+*.exe
+*.dll
+
+# 配置文件（可能包含敏感信息）
+*.env
+.env/
+# TensorRT引擎文件（需在目标设备重新编译）
+*.engine

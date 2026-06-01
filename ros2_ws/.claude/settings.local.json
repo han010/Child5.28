@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(claude-mem:mem-search)",
+      "mcp__plugin_claude-mem_mcp-search__search",
+      "Bash(ros2 pkg executables:*)"
+    ]
+  }
+}

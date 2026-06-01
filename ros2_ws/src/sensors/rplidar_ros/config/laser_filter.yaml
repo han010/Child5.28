@@ -1,0 +1,19 @@
+laser_filter_node:
+  ros__parameters:
+    # 1. 屏蔽正后方左右各30度（保留 -150° ~ +150°，即 -5pi/6 ~ 5pi/6）
+    filter1:
+      name: remove_rear_blind_spot
+      type: laser_filters/LaserScanAngularBoundsFilter
+      params:
+        lower_angle: -2.356194490  # -135° = -3π/4 ≈ -2.356 rad
+        upper_angle: 2.356194490   # +135° = +3π/4 ≈ +2.356 rad
+
+    # 2. 全局过滤 0.3m 以内的点（车身自身回波）
+    filter2:
+      name: range_filter
+      type: laser_filters/LaserScanRangeFilter
+      params:
+        lower_threshold: 0.3
+        upper_threshold: 12.0
+        lower_replacement_value: -.inf
+        upper_replacement_value: .inf

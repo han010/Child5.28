@@ -1,0 +1,11 @@
+# GPS单点导航服务
+# 用于发送单个GPS目标点进行导航
+
+# 请求：目标GPS坐标
+float64 latitude         # 目标纬度
+float64 longitude        # 目标经度
+float64 heading          # 可选: 目标朝向(弧度)，NaN表示不指定
+---
+# 响应：服务执行结果
+bool success             # 是否成功接收
+string message           # 状态消息

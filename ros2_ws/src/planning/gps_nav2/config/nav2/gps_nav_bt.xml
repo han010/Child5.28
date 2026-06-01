@@ -1,0 +1,12 @@
+<!--
+  GPS 户外导航行为树（兼容旧版 BehaviorTree.CPP）
+  仅使用基础节点: Sequence, Fallback, ComputePathToPose, FollowPath
+-->
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <Sequence name="Navigate">
+      <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+      <FollowPath path="{path}" controller_id="FollowPath"/>
+    </Sequence>
+  </BehaviorTree>
+</root>

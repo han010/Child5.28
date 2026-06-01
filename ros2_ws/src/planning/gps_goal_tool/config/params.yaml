@@ -1,0 +1,19 @@
+/**:
+  # UTM分区 (中国东部: 51N, 西部: 48N)
+  utm_zone: "51N"
+
+  # map坐标系名称
+  map_frame: "map"
+
+  # Marker可视化大小
+  marker_scale: 1.0
+
+  # 是否自动发送Nav2导航目标
+  auto_send_nav2_goal: true
+
+  # 原点模式: "auto" 从 /gps/fix 自动获取, "manual" 手动指定
+  origin_mode: "auto"
+
+  # 手动原点坐标 (仅 origin_mode=manual 时生效)
+  origin_latitude: 0.0
+  origin_longitude: 0.0

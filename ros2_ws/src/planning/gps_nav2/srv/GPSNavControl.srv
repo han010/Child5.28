@@ -1,0 +1,10 @@
+# GPS导航控制服务
+# 用于控制GPS导航任务的执行状态
+
+# 请求：控制命令
+string command            # 控制命令: "pause", "resume", "reset", "stop"
+---
+# 响应：服务执行结果
+bool success              # 是否成功
+string message            # 状态消息
+string current_status     # 当前导航状态

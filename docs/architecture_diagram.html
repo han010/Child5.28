@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>农业UGV系统架构图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #e2e8f0;
+    padding: 30px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* ====== Title ====== */
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #f1f5f9;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .header p {
+    font-size: 13px;
+    color: #94a3b8;
+    letter-spacing: 1px;
+  }
+
+  /* ====== Layer ====== */
+  .layer {
+    position: relative;
+    border-radius: 14px;
+    padding: 18px 22px 20px;
+    margin-bottom: 12px;
+  }
+  .layer-label {
+    position: absolute;
+    left: 20px;
+    top: 14px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  /* ====== Application Layer ====== */
+  .layer-app {
+    background: linear-gradient(135deg, #065f46 0%, #064e3b 100%);
+    border: 1px solid #10b981;
+  }
+  .layer-app .layer-label { color: #6ee7b7; }
+
+  /* ====== Perception & Localization Layer ====== */
+  .layer-perception {
+    background: linear-gradient(135deg, #4c1d95 0%, #3b0764 100%);
+    border: 1px solid #8b5cf6;
+  }
+  .layer-perception .layer-label { color: #c4b5fd; }
+
+  /* ====== ROS2 Bridge Layer ====== */
+  .layer-bridge {
+    background: linear-gradient(135deg, #1e3a5f 0%, #172554 100%);
+    border: 1px solid #3b82f6;
+  }
+  .layer-bridge .layer-label { color: #93c5fd; }
+
+  /* ====== SDK Layer ====== */
+  .layer-sdk {
+    background: linear-gradient(135deg, #78350f 0%, #713f12 100%);
+    border: 1px solid #f59e0b;
+  }
+  .layer-sdk .layer-label { color: #fcd34d; }
+
+  /* ====== Hardware Layer ====== */
+  .layer-hw {
+    background: linear-gradient(135deg, #7f1d1d 0%, #6b2121 100%);
+    border: 1px solid #ef4444;
+  }
+  .layer-hw .layer-label { color: #fca5a5; }
+
+  /* ====== Card ====== */
+  .cards-row {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  .card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 12px 16px;
+    min-width: 160px;
+    text-align: center;
+    backdrop-filter: blur(4px);
+    transition: transform 0.15s;
+  }
+  .card:hover { transform: translateY(-2px); }
+
+  .card-icon { font-size: 22px; margin-bottom: 4px; }
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin-bottom: 4px;
+  }
+  .card-sub {
+    font-size: 10.5px;
+    color: #94a3b8;
+    line-height: 1.5;
+  }
+  .card-tag {
+    display: inline-block;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 5px;
+    font-weight: 600;
+  }
+
+  /* Tags */
+  .tag-python { background: #3776ab33; color: #93c5fd; border: 1px solid #3b82f655; }
+  .tag-cpp    { background: #00599c33; color: #7dd3fc; border: 1px solid #0ea5e955; }
+  .tag-ros    { background: #a3440022; color: #fdba74; border: 1px solid #f9731655; }
+  .tag-udp    { background: #16a34a22; color: #86efac; border: 1px solid #22c55e55; }
+  .tag-can    { background: #dc262622; color: #fca5a5; border: 1px solid #ef444455; }
+  .tag-tensorrt { background: #76b90022; color: #bef264; border: 1px solid #84cc1655; }
+  .tag-ekf    { background: #8b5cf622; color: #c4b5fd; border: 1px solid #a78bfa55; }
+
+  /* ====== Platform Split ====== */
+  .platform-split {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+  }
+  .platform {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .platform-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .platform-title .dot {
+    width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+  }
+  .dot-green { background: #22c55e; box-shadow: 0 0 6px #22c55e88; }
+  .dot-blue  { background: #3b82f6; box-shadow: 0 0 6px #3b82f688; }
+  .platform-cards {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .platform-cards .card {
+    min-width: 120px;
+    padding: 10px 12px;
+  }
+
+  /* ====== Sensor Strip ====== */
+  .sensor-strip {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .sensor-chip {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 8px 14px;
+    text-align: center;
+    min-width: 110px;
+  }
+  .sensor-chip .sensor-icon { font-size: 18px; }
+  .sensor-chip .sensor-name { font-size: 11px; font-weight: 600; color: #e2e8f0; }
+  .sensor-chip .sensor-topic { font-size: 9px; color: #94a3b8; font-family: monospace; }
+
+  /* ====== Arrows between layers ====== */
+  .arrow-down {
+    text-align: center;
+    padding: 2px 0;
+    position: relative;
+  }
+  .arrow-down::before {
+    content: '';
+    display: inline-block;
+    width: 2px;
+    height: 12px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0.6));
+    vertical-align: top;
+  }
+  .arrow-label {
+    font-size: 10px;
+    color: #64748b;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+  }
+  .arrow-label span {
+    background: rgba(255,255,255,0.05);
+    padding: 2px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* ====== Data flow sidebar ====== */
+  .dataflow-note {
+    position: absolute;
+    right: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    writing-mode: vertical-rl;
+    font-size: 9px;
+    color: #475569;
+    letter-spacing: 2px;
+    opacity: 0.5;
+  }
+
+  /* ====== Footer ====== */
+  .footer {
+    text-align: center;
+    margin-top: 20px;
+    padding: 12px;
+    font-size: 11px;
+    color: #475569;
+  }
+  .footer-tech {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .footer-tech span {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.10);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    color: #94a3b8;
+  }
+
+  /* ====== Print styles ====== */
+  @media print {
+    body { background: white; color: #1e293b; padding: 15px; }
+    .layer { border-width: 2px; }
+    .card:hover { transform: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ======== Title ======== -->
+  <div class="header">
+    <h1>Agricultural UGV System Architecture</h1>
+    <p>XAG Revo R100 (UDP) &nbsp;&bull;&nbsp; Agilex Hunter SE (CAN) &nbsp;&bull;&nbsp; ROS2 Humble &nbsp;&bull;&nbsp; Jetson Orin</p>
+  </div>
+
+  <!-- ======== LAYER 5: Application ======== -->
+  <div class="layer layer-app">
+    <div class="layer-label">Application Layer / 应用层</div>
+    <div class="cards-row">
+      <div class="card">
+        <div class="card-icon">🎮</div>
+        <div class="card-title">键盘遥控</div>
+        <div class="card-sub">Teleop Keyboard<br>/revo/cmd_vel</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🗺️</div>
+        <div class="card-title">Nav2 室内导航</div>
+        <div class="card-sub">SLAM地图 + Nav2<br>路径规划 / 避障</div>
+        <div class="card-tag tag-ros">Navigation2</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🛰️</div>
+        <div class="card-title">GPS 航点导航</div>
+        <div class="card-sub">WGS84→ENU转换<br>多点航迹规划</div>
+        <div class="card-tag tag-ros">gps_nav2</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔍</div>
+        <div class="card-title">YOLO 障碍物检测</div>
+        <div class="card-sub">YOLOv8n / TensorRT<br>/yolo_obstacles</div>
+        <div class="card-tag tag-tensorrt">TensorRT</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== Arrow ======== -->
+  <div class="arrow-down"></div>
+  <div class="arrow-label">
+    <span>/cmd_vel (Twist)</span>
+    <span>导航目标 / GPS坐标</span>
+  </div>
+  <div class="arrow-down"></div>
+
+  <!-- ======== LAYER 4: Perception & Localization ======== -->
+  <div class="layer layer-perception">
+    <div class="layer-label">Perception &amp; Localization / 感知与定位层</div>
+    <div class="cards-row">
+      <div class="card">
+        <div class="card-icon">🧭</div>
+        <div class="card-title">EKF 室内定位</div>
+        <div class="card-sub">轮速计(vx) + IMU(yaw)<br>/odometry/filtered</div>
+        <div class="card-tag tag-ekf">robot_localization</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📐</div>
+        <div class="card-title">EKF 室外定位</div>
+        <div class="card-sub">GPS(x,y) + IMU(yaw)<br>+ 轮速计(vx)</div>
+        <div class="card-tag tag-ekf">多源融合</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏗️</div>
+        <div class="card-title">SLAM 建图</div>
+        <div class="card-sub">slam_toolbox<br>LiDAR在线建图</div>
+        <div class="card-tag tag-ros">slam_toolbox</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧠</div>
+        <div class="card-title">YOLOv8 感知</div>
+        <div class="card-sub">YOLOv8n &rarr; TensorRT<br>实时障碍物检测</div>
+        <div class="card-tag tag-tensorrt">640&times;640</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== Arrow ======== -->
+  <div class="arrow-down"></div>
+  <div class="arrow-label">
+    <span>/revo/pose (PoseState)</span>
+    <span>/revo/imu (Imu)</span>
+    <span>/odom (Odometry)</span>
+    <span>/scan (LaserScan)</span>
+  </div>
+  <div class="arrow-down"></div>
+
+  <!-- ======== LAYER 3: ROS2 Bridge ======== -->
+  <div class="layer layer-bridge">
+    <div class="layer-label">ROS2 Adaptation Layer / ROS2 适配层 (Bridge Nodes)</div>
+    <div class="platform-split">
+      <!-- Revo Platform -->
+      <div class="platform">
+        <div class="platform-title"><span class="dot dot-green"></span> XAG Revo R100 适配</div>
+        <div class="platform-cards">
+          <div class="card">
+            <div class="card-title">revo_bridge</div>
+            <div class="card-sub">SDK → ROS Topics<br>PoseState / Imu / Status</div>
+            <div class="card-tag tag-python">Python/rclpy</div>
+          </div>
+          <div class="card">
+            <div class="card-title">revo_odom</div>
+            <div class="card-sub">IMU航向 + 轮速积分<br>平滑滤波 → /odom</div>
+            <div class="card-tag tag-python">Python/rclpy</div>
+          </div>
+          <div class="card">
+            <div class="card-title">revo_gnss</div>
+            <div class="card-sub">NMEA → NavSatFix<br>/gps/fix</div>
+            <div class="card-tag tag-python">Python/rclpy</div>
+          </div>
+        </div>
+      </div>
+      <!-- Hunter Platform -->
+      <div class="platform">
+        <div class="platform-title"><span class="dot dot-blue"></span> Agilex Hunter SE 适配</div>
+        <div class="platform-cards">
+          <div class="card">
+            <div class="card-title">hunter_base_node</div>
+            <div class="card-sub">CAN → ROS Topics<br>Odom / Status / TF</div>
+            <div class="card-tag tag-cpp">C++/rclcpp</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Bicycle Model</div>
+            <div class="card-sub">阿克曼转向模型<br>航位推算</div>
+            <div class="card-tag tag-cpp">Ascent Library</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sensor Drivers Strip -->
+    <div class="sensor-strip">
+      <div class="sensor-chip">
+        <div class="sensor-icon">📡</div>
+        <div class="sensor-name">RPLIDAR A1</div>
+        <div class="sensor-topic">/scan</div>
+      </div>
+      <div class="sensor-chip">
+        <div class="sensor-icon">🌍</div>
+        <div class="sensor-name">GPS (NMEA)</div>
+        <div class="sensor-topic">/gps/fix</div>
+      </div>
+      <div class="sensor-chip">
+        <div class="sensor-icon">📷</div>
+        <div class="sensor-name">Astra Camera</div>
+        <div class="sensor-topic">/image_raw</div>
+      </div>
+      <div class="sensor-chip">
+        <div class="sensor-icon">📻</div>
+        <div class="sensor-name">MR20 毫米波</div>
+        <div class="sensor-topic">/mmwave</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== Arrow ======== -->
+  <div class="arrow-down"></div>
+  <div class="arrow-label">
+    <span>SDK API (Python)</span>
+    <span>SDK API (C++)</span>
+    <span>串口 / USB</span>
+  </div>
+  <div class="arrow-down"></div>
+
+  <!-- ======== LAYER 2: SDK ======== -->
+  <div class="layer layer-sdk">
+    <div class="layer-label">Hardware Abstraction Layer / 硬件抽象层 (SDK)</div>
+    <div class="cards-row">
+      <div class="card">
+        <div class="card-icon">📦</div>
+        <div class="card-title">Revo SDK</div>
+        <div class="card-sub">Python / UDP协议<br>192.168.234.1:10151<br>二进制小端序 / 50Hz</div>
+        <div class="card-tag tag-udp">UDP</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📦</div>
+        <div class="card-title">UGV SDK</div>
+        <div class="card-sub">C++ / CAN协议V2<br>500K波特率<br>gs_usb驱动</div>
+        <div class="card-tag tag-can">CAN Bus</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📦</div>
+        <div class="card-title">Sensor Drivers</div>
+        <div class="card-sub">rplidar_ros / serial_ros2<br>wheeltec_gps / astra_cam</div>
+        <div class="card-tag tag-ros">ROS2 Packages</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== Arrow ======== -->
+  <div class="arrow-down"></div>
+  <div class="arrow-label">
+    <span>UDP Socket</span>
+    <span>CAN Frame</span>
+    <span>USB / UART</span>
+  </div>
+  <div class="arrow-down"></div>
+
+  <!-- ======== LAYER 1: Hardware ======== -->
+  <div class="layer layer-hw">
+    <div class="layer-label">Hardware Layer / 硬件层</div>
+    <div class="platform-split">
+      <!-- Revo HW -->
+      <div class="platform">
+        <div class="platform-title"><span class="dot dot-green"></span> XAG Revo R100 / R200</div>
+        <div class="platform-cards">
+          <div class="card">
+            <div class="card-title">底盘控制器</div>
+            <div class="card-sub">UDP网络连接<br>双轮差速驱动</div>
+          </div>
+          <div class="card">
+            <div class="card-title">内置 IMU</div>
+            <div class="card-sub">航向角 / 角速度<br>轮速计</div>
+          </div>
+          <div class="card">
+            <div class="card-title">内置 GNSS</div>
+            <div class="card-sub">RTK定位<br>经纬度 / 海拔</div>
+          </div>
+        </div>
+      </div>
+      <!-- Hunter HW -->
+      <div class="platform">
+        <div class="platform-title"><span class="dot dot-blue"></span> Agilex Hunter SE</div>
+        <div class="platform-cards">
+          <div class="card">
+            <div class="card-title">底盘控制器</div>
+            <div class="card-sub">CAN总线通信<br>阿克曼转向</div>
+          </div>
+          <div class="card">
+            <div class="card-title">电机编码器</div>
+            <div class="card-sub">后轮驱动<br>前轮转向</div>
+          </div>
+          <div class="card">
+            <div class="card-title">E-Stop 急停</div>
+            <div class="card-sub">安全保障<br>遥控器模式切换</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- External Sensors -->
+    <div class="sensor-strip">
+      <div class="sensor-chip">
+        <div class="sensor-icon">📡</div>
+        <div class="sensor-name">RPLIDAR A1</div>
+        <div class="sensor-topic">360&deg; 激光雷达</div>
+      </div>
+      <div class="sensor-chip">
+        <div class="sensor-icon">🌍</div>
+        <div class="sensor-name">GPS 天线</div>
+        <div class="sensor-topic">NMEA 0183</div>
+      </div>
+      <div class="sensor-chip">
+        <div class="sensor-icon">📷</div>
+        <div class="sensor-name">Orbbec Astra</div>
+        <div class="sensor-topic">RGB-D 相机</div>
+      </div>
+      <div class="sensor-chip">
+        <div class="sensor-icon">📻</div>
+        <div class="sensor-name">MR20 毫米波</div>
+        <div class="sensor-topic">60GHz FMCW</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== Footer ======== -->
+  <div class="footer">
+    <div style="margin-bottom: 10px; color: #64748b; font-size: 12px;">
+      <strong>数据流方向</strong>: 硬件层 &uarr; SDK层 &uarr; ROS2适配层 &uarr; 感知定位层 &uarr; 应用层 &nbsp;&nbsp;|&nbsp;&nbsp;
+      <strong>控制流方向</strong>: 应用层 &darr; ROS2适配层 &darr; SDK层 &darr; 硬件层
+    </div>
+    <div class="footer-tech">
+      <span>ROS2 Humble</span>
+      <span>Python / rclpy</span>
+      <span>C++ / rclcpp</span>
+      <span>robot_localization</span>
+      <span>Nav2</span>
+      <span>slam_toolbox</span>
+      <span>YOLOv8 / TensorRT</span>
+      <span>Jetson Orin (aarch64)</span>
+    </div>
+    <div style="margin-top: 10px; color: #475569;">
+      Agricultural UGV Project &bull; Git Flow &bull; Colcon Build
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

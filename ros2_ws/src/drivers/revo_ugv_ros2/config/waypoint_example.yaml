@@ -1,0 +1,40 @@
+# GPS多点航点导航配置示例
+
+# 方式1：单点导航（简单模式）
+# 只需设置target_latitude和target_longitude
+# ros2 run revo_ugv_ros2 gps_waypoint_nav_odom \
+#   --ros-args \
+#   -p target_latitude:=30.2551044 \
+#   -p target_longitude:=120.294113
+
+# 方式2：多点导航（JSON格式）
+# waypoint_list是JSON格式的航点数组
+# ros2 run revo_ugv_ros2 gps_waypoint_nav_odom \
+#   --ros-args \
+#   -p waypoint_list:='[{"latitude":30.2551044,"longitude":120.294113},{"latitude":30.2552000,"longitude":120.2942000}]'
+
+# 示例航点列表（农业场景：矩形田块巡检）
+waypoint_list: [
+  {"latitude": 30.2551044, "longitude": 120.294113},  # 起点
+  {"latitude": 30.2552000, "longitude": 120.294113},  # 北侧
+  {"latitude": 30.2552000, "longitude": 120.294250},  # 东北角
+  {"latitude": 30.2551044, "longitude": 120.294250},  # 东侧
+  {"latitude": 30.2551044, "longitude": 120.294113},  # 回到起点
+]
+
+# 是否循环执行
+loop_waypoints: false
+
+# 导航参数
+tolerance: 1.0                # 到达容差(米)
+linear_speed: 0.5             # 前进速度 m/s
+angular_speed: 0.3            # 转向速度 rad/s
+angle_tolerance: 0.1          # 角度容差 rad
+use_slow_approach: true       # 接近目标时减速
+slow_distance: 2.0            # 减速距离(米)
+slow_speed_ratio: 0.3         # 减速比例
+wait_at_waypoint: 0.0         # 到达航点后等待时间(秒)
+
+# 单点模式的默认目标（如果不使用waypoint_list）
+target_latitude: 30.2551044
+target_longitude: 120.294113

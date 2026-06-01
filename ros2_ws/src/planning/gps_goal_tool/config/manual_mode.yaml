@@ -1,0 +1,30 @@
+/**:
+  # UTM分区 (中国东部: 51N, 西部: 48N)
+  utm_zone: "51N"
+
+  # map坐标系名称
+  map_frame: "map"
+
+  # Marker可视化大小
+  marker_scale: 1.0
+
+  # 是否自动发送Nav2导航目标
+  auto_send_nav2_goal: true
+
+  # 原点模式: "auto" 从 /gps/fix 自动获取, "manual" 手动指定
+  origin_mode: "manual"
+
+  # 手动原点坐标 (仅 origin_mode=manual 时生效)
+  # 这是机器人启动时的GPS位置，将作为地图原点(0,0)
+  origin_latitude: 30.2552028   # 杭州附近示例坐标
+  origin_longitude: 120.2941317
+
+  # 是否使用手动指定的航向角
+  # true: 使用下面的 manual_yaw_deg
+  # false: 从 /odom/initial_yaw_offset 话题获取
+  use_manual_yaw: true
+
+  # 手动航向角 (度)
+  # 正北为0度，顺时针为正
+  # 例如：机器人朝向东北方(45度)，则设置为45
+  manual_yaw_deg: 0.0  # 0度=正北，90度=正东

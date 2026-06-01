@@ -1,0 +1,193 @@
+<?xml version="1.0"?>
+<robot name="hunter_simple">
+  <!-- Base link roughly matches 0.74 x 0.34 x 0.18 m -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="0.74 0.34 0.18"/>
+      </geometry>
+      <origin xyz="0 0 0.09" rpy="0 0 0"/>
+      <material name="grey">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <!-- Collision box slightly larger than the body -->
+    <collision>
+      <geometry>
+        <box size="0.80 0.40 0.20"/>
+      </geometry>
+      <origin xyz="0 0 0.10" rpy="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="30.0"/>
+      <origin xyz="0 0 0.09" rpy="0 0 0"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.5" iyz="0.0" izz="2.0"/>
+    </inertial>
+  </link>
+
+  <!-- Wheel geometry: diameter 0.265 m, width 0.085 m -->
+  <!-- Wheel centers are offset 0.26 m in y from center (0.17 m half-body + 0.09 m gap) -->
+  <!-- Front/back wheel centers are separated by 0.55 m (x = +/-0.275 m) -->
+
+  <link name="front_left_wheel">
+    <visual>
+      <geometry>
+        <cylinder radius="0.1325" length="0.085"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 1.5708 1.5708"/>
+      <material name="black">
+        <color rgba="0.1 0.1 0.1 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="0.1325" length="0.085"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 1.5708 1.5708"/>
+    </collision>
+    <inertial>
+      <mass value="2.0"/>
+      <inertia ixx="0.02" ixy="0.0" ixz="0.0" iyy="0.02" iyz="0.0" izz="0.02"/>
+    </inertial>
+  </link>
+
+  <link name="front_right_wheel">
+    <visual>
+      <geometry>
+        <cylinder radius="0.1325" length="0.085"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 1.5708 1.5708"/>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="0.1325" length="0.085"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 1.5708 1.5708"/>
+    </collision>
+    <inertial>
+      <mass value="2.0"/>
+      <inertia ixx="0.02" ixy="0.0" ixz="0.0" iyy="0.02" iyz="0.0" izz="0.02"/>
+    </inertial>
+  </link>
+
+  <link name="rear_left_wheel">
+    <visual>
+      <geometry>
+        <cylinder radius="0.1325" length="0.085"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 1.5708 1.5708"/>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="0.1325" length="0.085"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 1.5708 1.5708"/>
+    </collision>
+    <inertial>
+      <mass value="2.0"/>
+      <inertia ixx="0.02" ixy="0.0" ixz="0.0" iyy="0.02" iyz="0.0" izz="0.02"/>
+    </inertial>
+  </link>
+
+  <link name="rear_right_wheel">
+    <visual>
+      <geometry>
+        <cylinder radius="0.1325" length="0.085"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 1.5708 1.5708"/>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="0.1325" length="0.085"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 1.5708 1.5708"/>
+    </collision>
+    <inertial>
+      <mass value="2.0"/>
+      <inertia ixx="0.02" ixy="0.0" ixz="0.0" iyy="0.02" iyz="0.0" izz="0.02"/>
+    </inertial>
+  </link>
+
+  <!-- Joints: fixed to base (you can change to revolute for simulation of wheel rotation) -->
+  <joint name="front_left_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="front_left_wheel"/>
+    <origin xyz="0.275 0.26 0.1325" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="front_right_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="front_right_wheel"/>
+    <origin xyz="0.275 -0.26 0.1325" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="rear_left_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="rear_left_wheel"/>
+    <origin xyz="-0.275 0.26 0.1325" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="rear_right_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="rear_right_wheel"/>
+    <origin xyz="-0.275 -0.26 0.1325" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Optional: a slightly larger collision hull surrounding wheels and base -->
+  <link name="collision_hull">
+    <collision>
+      <geometry>
+        <box size="0.90 0.60 0.35"/>
+      </geometry>
+      <origin xyz="0 0 0.175" rpy="0 0 0"/>
+    </collision>
+    <visual>
+      <geometry>
+        <box size="0.90 0.60 0.35"/>
+      </geometry>
+      <origin xyz="0 0 0.175" rpy="0 0 0"/>
+      <material name="transparent">
+        <color rgba="0.8 0.2 0.2 0.15"/>
+      </material>
+    </visual>
+  </link>
+
+  <joint name="collision_hull_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="collision_hull"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- 2D lidar: centered in Y, 3cm forward (X) and 3cm above body top (body height 0.18m -> z=0.21) -->
+  <link name="laser_link">
+    <visual>
+      <geometry>
+        <cylinder radius="0.04" length="0.06"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <material name="blue">
+        <color rgba="0.2 0.2 0.8 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.08 0.08 0.06"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="0.5"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+    </inertial>
+  </link>
+
+  <joint name="laser_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="laser_link"/>
+    <origin xyz="-0.3 0 0.21" rpy="0 0 0"/>
+  </joint>
+</robot>

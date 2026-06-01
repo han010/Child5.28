@@ -1,0 +1,32 @@
+{
+  "id": 1,
+  "location": "天桥电梯位置",
+  "longitude": 1202940260,
+  "latitude": 302554009,
+  "yaw": -490,
+    ros2 service call /set_gps_goal gps_nav2/srv/GPSGoal \
+    "{latitude: 30.2554009, longitude: 120.2940260}"
+}
+
+{
+  "id": 2,
+  "location": "天桥中间位置",
+  "longitude": 1202940487,
+  "latitude": 302553661,
+  "yaw": 2527,
+    ros2 service call /set_gps_goal gps_nav2/srv/GPSGoal \
+    "{latitude: 30.2553661, longitude: 120.2940487}"
+}
+
+{
+    "id": 3,
+  "location": "天桥楼梯位置",
+
+
+  "yaw": 2750,
+    ros2 service call /set_gps_goal gps_nav2/srv/GPSGoal \
+    "{latitude: 30.2552013, longitude: 120.2941295}"
+}
+
+  ros2 service call /set_gps_goal gps_nav2/srv/GPSGoal \
+    "{latitude: 30.2553661, longitude: 120.2940487}"

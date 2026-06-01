@@ -1,0 +1,281 @@
+# Nav2 GPS导航配置文件
+# 适用于农业UGV室外GPS导航（无预建地图）
+#
+# 关键特性:
+# - 使用GPS融合的map坐标系
+# - 无预建地图，依赖局部避障
+# - 调整容差参数以适应GPS精度
+
+# ==================== BT Navigator ====================
+bt_navigator:
+  ros__parameters:
+    use_sim_time: false
+    global_frame: "map"
+    robot_frame: "base_link"
+    odom_topic: "/gps_odom"
+    bt_loop_duration: 10
+    default_nav_to_pose_bt_xml: "$(find-pkg-share gps_nav2)/config/nav2/gps_nav_bt.xml"
+    default_nav_through_poses_bt_xml: "$(find-pkg-share gps_nav2)/config/nav2/gps_nav_bt.xml"
+    default_server_timeout: 100
+    enable_groot_monitoring: true
+    groot_zmq_pub_port: 1666
+    groot_zmq_server_port: 1667
+    plugin_lib_names:
+    - nav2_compute_path_to_pose_action_bt_node
+    - nav2_compute_path_through_poses_action_bt_node
+    - nav2_follow_path_action_bt_node
+    - nav2_back_up_action_bt_node
+    - nav2_spin_action_bt_node
+    - nav2_wait_action_bt_node
+    - nav2_clear_costmap_service_bt_node
+    - nav2_is_stuck_condition_bt_node
+    - nav2_goal_reached_condition_bt_node
+    - nav2_goal_updated_condition_bt_node
+    - nav2_initial_pose_received_condition_bt_node
+    - nav2_reinitialize_global_localization_service_bt_node
+    - nav2_rate_controller_bt_node
+    - nav2_distance_controller_bt_node
+    - nav2_speed_controller_bt_node
+    - nav2_truncate_path_action_bt_node
+    - nav2_truncate_path_local_action_bt_node
+    - nav2_goal_updated_controller_bt_node
+    - nav2_path_longer_on_approach_bt_node
+    - nav2_controller_selector_bt_node
+    - nav2_controller_cancel_bt_node
+    - nav2_goal_checker_selector_bt_node
+    - nav2_planner_selector_bt_node
+
+# ==================== Controller Server ====================
+controller_server:
+  ros__parameters:
+    use_sim_time: false
+    controller_frequency: 20.0
+    odom_topic: "/gps_odom"
+    min_x_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.5
+    min_theta_velocity_threshold: 0.001
+    progress_checker_plugin: "progress_checker"
+    goal_checker_plugin: "goal_checker"
+    controller_plugins: ["FollowPath"]
+
+    # 进度检查器
+    progress_checker:
+      plugin: "nav2_controller::SimpleProgressChecker"
+      required_movement_radius: 0.5
+      movement_time_allowance: 30.0
+
+    # 目标检查器 - 调整GPS容差
+    goal_checker:
+      plugin: "nav2_controller::SimpleGoalChecker"
+      xy_goal_tolerance: 0.5  # 减小容差，让机器人更接近目标
+      yaw_goal_tolerance: 0.5
+
+    FollowPath:
+      plugin: "dwb_core::DWBLocalPlanner"
+      debug_trajectory_details: False
+      min_vel_x: 0.3
+      min_vel_y: 0.0
+      max_vel_x: 1.2    # 提高室外巡航速度
+      max_vel_y: 0.0
+      max_vel_theta: 0.8
+      min_speed_xy: 0.3
+      max_speed_xy: 1.2  # 与 max_vel_x 对齐
+      min_speed_theta: 0.0
+      # 加速度限制
+      acc_lim_x: 0.8
+      acc_lim_y: 0.0
+      acc_lim_theta: 1.5
+      decel_lim_x: -0.8
+      decel_lim_y: 0.0
+      decel_lim_theta: -1.5
+      # 速度参数
+      vx_samples: 20
+      vy_samples: 1
+      vtheta_samples: 20
+      sim_time: 1.2      # 缩短轨迹模拟时间，减少进入膨胀区的概率
+      linear_granularity: 0.05
+      angular_granularity: 0.025
+      trans_stopped_velocity: 0.25
+      short_circuit_trajectory_evaluation: False   # 评估所有轨迹，找到最优解
+      stateful: True
+      # 评价权重
+      critics: ["BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist", "RotateToGoal"]
+      BaseObstacle:
+        class: dwb_critics::BaseObstacleCritic
+        enabled: True
+        scale: 0.02
+      GoalAlign:
+        class: dwb_critics::GoalAlignCritic
+        enabled: True
+        scale: 32.0
+        aggregation_type: "product"
+      PathAlign:
+        class: dwb_critics::PathAlignCritic
+        enabled: True
+        scale: 32.0
+        aggregation_type: "product"
+        forward_preference: 0.1
+      PathDist:
+        class: dwb_critics::PathDistCritic
+        enabled: True
+        scale: 32.0
+        aggregation_type: "product"
+      GoalDist:
+        class: dwb_critics::GoalDistCritic
+        enabled: True
+        scale: 48.0   # 增大权重，更早开始考虑目标距离
+        aggregation_type: "product"
+      RotateToGoal:
+        class: dwb_critics::RotateToGoalCritic
+        enabled: True
+        scale: 32.0
+        aggregation_type: "product"
+      oscillation:
+        enabled: True
+        oscillation_reset_dist: 0.05
+        oscillation_reset_angle: 0.2
+
+# ==================== Local Costmap ====================
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 10.0    # 提高更新频率，应对GPS跳动
+      publish_frequency: 2.0
+      global_frame: odom
+      robot_base_frame: base_link
+      use_sim_time: false
+      rolling_window: true
+      width: 12                 # 匹配雷达探测距离20m，容忍GPS ~5m跳动
+      height: 12
+      resolution: 0.1
+      transform_tolerance: 0.5  # TF时间同步容忍，不是GPS空间容忍
+      robot_radius: 0.65        # 半长(1.3/2=0.65)，而非对角线
+      plugins: ["obstacle_layer", "inflation_layer"]
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan
+        scan:
+          topic: /scan_filtered
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+          inf_is_valid: True       # 让 inf 参与清除，防止障碍物残留
+          raytrace_max_range: 10.0
+          raytrace_min_range: 0.0
+          obstacle_max_range: 8.0   # 缩短标记距离，减少远端噪点
+          obstacle_min_range: 0.0
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 2.5   # 缓衰减，窄且平的代价场
+        inflation_radius: 0.8      # 安全膨胀，总安全距离=0.65+0.8=1.45m
+      always_send_full_costmap: True
+  local_costmap_client:
+    ros__parameters:
+      use_sim_time: false
+  local_costmap_rclcpp_node:
+    ros__parameters:
+      use_sim_time: false
+
+# ==================== Global Costmap ====================
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      update_frequency: 5.0
+      publish_frequency: 2.0
+      global_frame: map
+      robot_base_frame: base_link
+      use_sim_time: false
+      rolling_window: true        # 跟随机器人移动，无固定地图原点
+      width: 50                   # 全局 costmap 范围 (米)
+      height: 50
+      resolution: 0.2            # 室外GPS精度较低，降低分辨率节省计算
+      transform_tolerance: 0.5    # TF时间同步容忍
+      robot_radius: 0.65          # 半长(1.3/2=0.65)
+      track_unknown_space: true
+      # 纯GPS导航：不使用static_layer（无预建地图）
+      plugins: ["obstacle_layer", "inflation_layer"]
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan
+        scan:
+          topic: /scan_filtered
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+          raytrace_max_range: 12.0
+          raytrace_min_range: 0.0
+          obstacle_max_range: 10.0
+          obstacle_min_range: 0.0
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 2.5    # 缓衰减，窄且平的代价场
+        inflation_radius: 0.8       # 安全膨胀，总安全距离=0.65+0.8=1.45m
+      always_send_full_costmap: True
+  global_costmap_client:
+    ros__parameters:
+      use_sim_time: false
+  global_costmap_rclcpp_node:
+    ros__parameters:
+      use_sim_time: false
+
+# ==================== Map Server ====================
+# 纯GPS导航不需要预建地图，使用空的地图服务器
+map_server:
+  ros__parameters:
+    use_sim_time: false
+    # 使用一个空的占位符地图，或设置为None
+    yaml_filename: ""
+
+# ==================== Planner Server ====================
+planner_server:
+  ros__parameters:
+    expected_planner_frequency: 0.0   # 按需规划，不连续空转
+    use_sim_time: false
+    planner_plugins: ["GridBased"]
+    GridBased:
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+      tolerance: 0.5
+      use_astar: true
+      allow_unknown: true  # 允许规划到未知区域
+
+# ==================== Behavior Server ====================
+behavior_server:
+  ros__parameters:
+    costmap_update_frequency: 10.0
+    use_sim_time: false
+
+# ==================== Velocity Smoother ====================
+velocity_smoother:
+  ros__parameters:
+    use_sim_time: false
+    smoothing_frequency: 20.0
+    scale_velocities: false
+    feedback: "OPEN_LOOP"
+    max_velocity: [1.2, 0.0, 1.0]
+    min_velocity: [-0.8, 0.0, -1.0]
+    max_accel: [1.0, 0.0, 2.0]
+    max_decel: [-1.0, 0.0, -2.0]
+    deadband_velocity: [0.0, 0.0, 0.0]
+    odom_topic: "/gps_odom"
+    odom_duration: 0.1
+    velocity_timeout: 1.0
+
+# ==================== Robot State Publisher ====================
+robot_state_publisher:
+  ros__parameters:
+    use_sim_time: false
+
+# ==================== Waypoint Follower ====================
+waypoint_follower:
+  ros__parameters:
+    loop_rate: 20
+    stop_on_failure: false
+    waypoint_task_executor_plugin: "wait_at_waypoint"
+    wait_at_waypoint:
+      plugin: "nav2_waypoint_follower::WaitAtWaypoint"
+      enabled: True
+      waypoint_pause_duration: 0

@@ -1,0 +1,85 @@
+start
+latitude: 30.2548443
+longitude: 120.2941637
+altitude: 20.6
+
+天台
+起点
+latitude 
+30.2552028
+longitude 
+120.2941317
+ 
+终点
+latitude 30.255386
+longitude 120.2940392
+
+
+2
+latitude: 30.2549355
+longitude: 120.2942266
+altitude: 20.5
+
+
+
+3
+
+latitude: 30.2550369
+longitude: 120.2942625
+altitude: 20.6
+
+
+
+
+
+4
+latitude: 30.2551476
+longitude: 120.2942642
+altitude: 20.6
+
+
+5  status: 2
+  service: 3
+latitude: 30.2552106
+longitude: 120.2942511
+altitude: 20.6
+position_covariance:
+
+
+
+
+6  service: 3
+latitude: 30.2553053
+longitude: 120.2941761
+altitude: 20.6
+position_covariance:
+- 0.01
+- 0.0
+
+7  service: 3
+latitude: 30.2554318
+longitude: 120.2941262
+altitude: 20.5
+position_covariance:
+- 0.01
+
+
+8
+  service: 3
+latitude: 30.2555995
+longitude: 120.2941428
+altitude: 20.5
+position_covariance:
+
+
+9
+  service: 3
+latitude: 30.2556668
+longitude: 120.294095
+altitude: 20.5
+position_covariance:
+- 0.01
+
+
+
+
